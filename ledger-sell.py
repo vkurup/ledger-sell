@@ -33,6 +33,7 @@ def get_data():
     """Get the input data from the user
     """
     symbol = raw_input("Symbol: ")
+    sell_price = 18.60 # fixme
 
     # default to today
     now = date.today()
@@ -59,19 +60,33 @@ def get_data():
     # now get buy_date and buy_price
     for line in ledger_result:
         line.strip()
-        #filter lines that don't have the symbol in them (commission)
-        # fixme: deal with multiple lines (stock in >1 account)
-        pattern = '[0-9\.]+'
-        if line.find(symbol) != -1 :
-            shares = int(re.findall(pattern, line)[0])
-            pattern = 'Assets.*:+.*'
-            account = re.findall(pattern, line)[0]
+        #filter lines that don't have the word "BUY"
+        if line.find("BUY") != -1 :
+            pattern = '\d{4}/\d{2}/\d{2}'
+            buy_date = re.findall(pattern, line)[0]
+            pattern = '\$[\d,\.]+'
+            buy_cost = re.findall(pattern, line)[0]
+            buy_cost = buy_cost.replace("$","")
+            buy_cost = float(buy_cost.replace(",",""))
         else:
-            buy_commission = float(re.findall(pattern, line)[0])
+            pass
 
-    print ledger_result
+    buy_price = buy_cost / shares
     print "Selling %d shares of %s (account %s) on %s" % (shares, symbol, account, sell_date)
-    print "Buy commission was %.2f" %(buy_commission)
+    print "Buy commission was %.2f" % (buy_commission)
+    print "Buy date was %s" % (buy_date)
+    print "Buy cost was %s" % (buy_cost)
+    print "Buy price was %.2f" % (buy_price)
+    print "Sell price is %.2f" % (sell_price)
+
+    print """%s  SELL %s
+    %s  -%d @ $%.2f
+    %s   %d @ $%.2f
+    %s  -%d @ $%.2f
+    %s  $-%.2f ; buy commission
+    Income:Capital Gains:ST  $7.07 ; sell commission
+    %s  $%.2f
+    Income:Capital Gains:ST""" % (sell_date,symbol,account,shares,buy_price,account,shares,sell_price,account,shares,sell_price,account,buy_commission,account,shares*sell_price)
 
 #sell_date = raw_input("Sell date: ")
 #sell_price = raw_input("Sell price: ")
