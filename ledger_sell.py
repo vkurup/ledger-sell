@@ -124,4 +124,7 @@ def ledger_buy_data(account):
     
 
 if __name__ == "__main__":
-    calculate_txn_items("GE", 18.61)
+    #fixme: validate
+    symbol = raw_input("Symbol: ")
+    sell_price = float(raw_input("Sell price: $"))
+    calculate_txn_items(symbol, sell_price)
